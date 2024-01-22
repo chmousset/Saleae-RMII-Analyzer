@@ -1,16 +1,20 @@
-#ifndef SIMPLESERIAL_ANALYZER_H
-#define SIMPLESERIAL_ANALYZER_H
+#ifndef RMII_ANALYZER_H
+#define RMII_ANALYZER_H
 
 #include <Analyzer.h>
-#include "SimpleSerialAnalyzerResults.h"
-#include "SimpleSerialSimulationDataGenerator.h"
+#include "RMIIAnalyzerResults.h"
+#include "RMIISimulationDataGenerator.h"
 
-class SimpleSerialAnalyzerSettings;
-class ANALYZER_EXPORT SimpleSerialAnalyzer : public Analyzer2
+#define FRAME_TYPE_PREAMBLE 1
+#define FRAME_TYPE_DATA 2
+
+class RMIIAnalyzerSettings;
+class ANALYZER_EXPORT RMIIAnalyzer : public Analyzer2
 {
 public:
-	SimpleSerialAnalyzer();
-	virtual ~SimpleSerialAnalyzer();
+	RMIIAnalyzer();
+	virtual ~RMIIAnalyzer();
+
 
 	virtual void SetupResults();
 	virtual void WorkerThread();
@@ -22,21 +26,21 @@ public:
 	virtual bool NeedsRerun();
 
 protected: //vars
-	std::auto_ptr< SimpleSerialAnalyzerSettings > mSettings;
-	std::auto_ptr< SimpleSerialAnalyzerResults > mResults;
-	AnalyzerChannelData* mSerial;
-
-	SimpleSerialSimulationDataGenerator mSimulationDataGenerator;
+	std::auto_ptr< RMIIAnalyzerSettings > mSettings;
+	std::auto_ptr< RMIIAnalyzerResults > mResults;
+	AnalyzerChannelData* mRefClk;
+	AnalyzerChannelData* mD0;
+	AnalyzerChannelData* mD1;
+	AnalyzerChannelData* mEn;
+	RMIISimulationDataGenerator mSimulationDataGenerator;
 	bool mSimulationInitilized;
 
 	//Serial analysis vars:
-	U32 mSampleRateHz;
-	U32 mStartOfStopBitOffset;
-	U32 mEndOfStopBitOffset;
+	// U32 mSampleRateHz;
 };
 
 extern "C" ANALYZER_EXPORT const char* __cdecl GetAnalyzerName();
 extern "C" ANALYZER_EXPORT Analyzer* __cdecl CreateAnalyzer( );
 extern "C" ANALYZER_EXPORT void __cdecl DestroyAnalyzer( Analyzer* analyzer );
 
-#endif //SIMPLESERIAL_ANALYZER_H
+#endif //RMII_ANALYZER_H
