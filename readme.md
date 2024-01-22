@@ -1,13 +1,12 @@
 # Reduced Media-Indepedent Interface (RGMII) Analyzer
 
 This is a Saleae Logic Analyzer plugin for decoding Reduced Media-Independent Interface (RGMII) signals. It does no Ethernet protocol decoding, but it works on a Byte-level so an Ethernet, TCP/IP or other kind of higer-level kind of interface can be decoded by a high-level analyser, indepedently of the protocol decoder.
+TX and RX paths must be analyzed seperately (create two instances of the analyzer).
 
 ## Signals
 - REF_CLK: 50MHz reference clock. All signals are sampled on REF_CLK rising edge.
-- RX[0-1]: receive data
-- CRS_DV: Carrier Sense/RX Data Valid
-- TX[0-1]: transmit data
-- TX_EN: transmit enable
+- D[0-1]: receive or transmit data
+- EN: Carrier Sense/RX Data Valid/TX Enable
 
 **Note on CRS_DV*** : this is an hybrid signal between the carrier sense and RX Data valid. Since PHY integrate buffers (FIFOs) to compensate slight clock differences between REF_CLK and the emitter's clock, it's likely that the Carrier Sense will fall while there are still data in the PHY's RX buffers.
 Depending on the RMII specification revision, the CRS_DV will have slightly different behaviours:
