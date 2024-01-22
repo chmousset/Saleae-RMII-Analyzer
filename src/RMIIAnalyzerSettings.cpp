@@ -4,37 +4,25 @@
 
 RMIIAnalyzerSettings::RMIIAnalyzerSettings()
 :	mRefClkChannel( UNDEFINED_CHANNEL ),
-	mRx0Channel( UNDEFINED_CHANNEL ),
-	mRx1Channel( UNDEFINED_CHANNEL ),
-	mCrsDvChannel( UNDEFINED_CHANNEL ),
-	// mTx0Channel( UNDEFINED_CHANNEL ),
-	// mTx1Channel( UNDEFINED_CHANNEL ),
-	// mTxEnChannel( UNDEFINED_CHANNEL ),
+	mD0Channel( UNDEFINED_CHANNEL ),
+	mD1Channel( UNDEFINED_CHANNEL ),
+	mEnChannel( UNDEFINED_CHANNEL ),
 	mPreamble( 213 ) // 0xD5
 {
 	mRefClkChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
-	mRx0ChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
-	mRx1ChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
-	mCrsDvChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
-	// mTx0ChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
-	// mTx1ChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
-	// mTxEnChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
+	mD0ChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
+	mD1ChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
+	mEnChannelInterface.reset(new AnalyzerSettingInterfaceChannel() );
 
 	mRefClkChannelInterface->SetTitleAndTooltip("REF_CLK", "50 MHz reference clock");
-	mRx0ChannelInterface->SetTitleAndTooltip("RX[0]", "RX data, bit 0");
-	mRx1ChannelInterface->SetTitleAndTooltip("RX[1]", "RX data, bit 1");
-	mCrsDvChannelInterface->SetTitleAndTooltip("CRS_DV", "Carrier sense/data valid");
-	// mTx0ChannelInterface->SetTitleAndTooltip("TX[0]", "TX data, bit 0");
-	// mTx1ChannelInterface->SetTitleAndTooltip("TX[1]", "TX data, bit 1");
-	// mTxEnChannelInterface->SetTitleAndTooltip("TX_EN", "Transmit Enable");
+	mD0ChannelInterface->SetTitleAndTooltip("D[0]", "D/TX data, bit 0");
+	mD1ChannelInterface->SetTitleAndTooltip("D[1]", "D/TX data, bit 1");
+	mEnChannelInterface->SetTitleAndTooltip("EN", "CRS_DV, TX_EN or D_DV");
 
 	mRefClkChannelInterface->SetChannel( mRefClkChannel );
-	mRx0ChannelInterface->SetChannel( mRx0Channel );
-	mRx1ChannelInterface->SetChannel( mRx1Channel );
-	mCrsDvChannelInterface->SetChannel( mCrsDvChannel );
-	// mTx0ChannelInterface->SetChannel( mTx0Channel );
-	// mTx1ChannelInterface->SetChannel( mTx1Channel );
-	// mTxEnChannelInterface->SetChannel( mTxEnChannel );
+	mD0ChannelInterface->SetChannel( mD0Channel );
+	mD1ChannelInterface->SetChannel( mD1Channel );
+	mEnChannelInterface->SetChannel( mEnChannel );
 
 	mPreambleInterface.reset( new AnalyzerSettingInterfaceInteger() );
 	mPreambleInterface->SetTitleAndTooltip( "Preamble", "preamble value (normally 0xD5)" );
@@ -42,12 +30,9 @@ RMIIAnalyzerSettings::RMIIAnalyzerSettings()
 	mPreambleInterface->SetMax(255);
 
 	AddInterface( mRefClkChannelInterface.get() );
-	AddInterface( mRx0ChannelInterface.get() );
-	AddInterface( mRx1ChannelInterface.get() );
-	AddInterface( mCrsDvChannelInterface.get() );
-	// AddInterface( mTx0ChannelInterface.get() );
-	// AddInterface( mTx1ChannelInterface.get() );
-	// AddInterface( mTxEnChannelInterface.get() );
+	AddInterface( mD0ChannelInterface.get() );
+	AddInterface( mD1ChannelInterface.get() );
+	AddInterface( mEnChannelInterface.get() );
 	AddInterface( mPreambleInterface.get() );
 
 	AddExportOption( 0, "Export packets" );
@@ -56,12 +41,9 @@ RMIIAnalyzerSettings::RMIIAnalyzerSettings()
 
 	ClearChannels();
 	AddChannel( mRefClkChannel, "REF_CLK" , false );
-	AddChannel( mRx0Channel, "RX[" , false );
-	AddChannel( mRx1Channel, "RX[" , false );
-	AddChannel( mCrsDvChannel, "CRS_DV" , false );
-	// AddChannel( mTx0Channel, "TX[" , false );
-	// AddChannel( mTx1Channel, "TX[" , false );
-	// AddChannel( mTxEnChannel, "TX_EN" , false );
+	AddChannel( mD0Channel, "D[" , false );
+	AddChannel( mD1Channel, "D[" , false );
+	AddChannel( mEnChannel, "EN" , false );
 }
 
 RMIIAnalyzerSettings::~RMIIAnalyzerSettings()
@@ -71,22 +53,16 @@ RMIIAnalyzerSettings::~RMIIAnalyzerSettings()
 bool RMIIAnalyzerSettings::SetSettingsFromInterfaces()
 {
 	mRefClkChannel = mRefClkChannelInterface->GetChannel();
-	mRx0Channel = mRx0ChannelInterface->GetChannel();
-	mRx1Channel = mRx1ChannelInterface->GetChannel();
-	mCrsDvChannel = mCrsDvChannelInterface->GetChannel();
-	// mTx0Channel = mTx0ChannelInterface->GetChannel();
-	// mTx1Channel = mTx1ChannelInterface->GetChannel();
-	// mTxEnChannel = mTxEnChannelInterface->GetChannel();
+	mD0Channel = mD0ChannelInterface->GetChannel();
+	mD1Channel = mD1ChannelInterface->GetChannel();
+	mEnChannel = mEnChannelInterface->GetChannel();
 	mPreamble = mPreambleInterface->GetInteger();
 
 	ClearChannels();
 	AddChannel( mRefClkChannel, "REF_CLK" , true );
-	AddChannel( mRx0Channel, "RX[" , true );
-	AddChannel( mRx1Channel, "RX[" , true );
-	AddChannel( mCrsDvChannel, "CRS_DV" , true );
-	// AddChannel( mTx0Channel, "TX[" , true );
-	// AddChannel( mTx1Channel, "TX[" , true );
-	// AddChannel( mTxEnChannel, "TX_EN" , true );
+	AddChannel( mD0Channel, "D[" , true );
+	AddChannel( mD1Channel, "D[" , true );
+	AddChannel( mEnChannel, "CRS_DV" , true );
 
 	return true;
 }
@@ -94,12 +70,9 @@ bool RMIIAnalyzerSettings::SetSettingsFromInterfaces()
 void RMIIAnalyzerSettings::UpdateInterfacesFromSettings()
 {
 	mRefClkChannelInterface->SetChannel( mRefClkChannel );
-	mRx0ChannelInterface->SetChannel( mRx0Channel );
-	mRx1ChannelInterface->SetChannel( mRx1Channel );
-	mCrsDvChannelInterface->SetChannel( mCrsDvChannel );
-	// mTx0ChannelInterface->SetChannel( mTx0Channel );
-	// mTx1ChannelInterface->SetChannel( mTx1Channel );
-	// mTxEnChannelInterface->SetChannel( mTxEnChannel );
+	mD0ChannelInterface->SetChannel( mD0Channel );
+	mD1ChannelInterface->SetChannel( mD1Channel );
+	mEnChannelInterface->SetChannel( mEnChannel );
 	mPreambleInterface->SetInteger( mPreamble );
 }
 
@@ -109,23 +82,17 @@ void RMIIAnalyzerSettings::LoadSettings( const char* settings )
 	text_archive.SetString( settings );
 
 	text_archive >> mRefClkChannel;
-	text_archive >> mRx0Channel;
-	text_archive >> mRx1Channel;
-	text_archive >> mCrsDvChannel;
-	// text_archive >> mTx0Channel;
-	// text_archive >> mTx1Channel;
-	// text_archive >> mTxEnChannel;
+	text_archive >> mD0Channel;
+	text_archive >> mD1Channel;
+	text_archive >> mEnChannel;
 	text_archive >> mPreamble;
 
 
 	ClearChannels();
 	AddChannel( mRefClkChannel, "REF_CLK" , false );
-	AddChannel( mRx0Channel, "RX[" , false );
-	AddChannel( mRx1Channel, "RX[" , false );
-	AddChannel( mCrsDvChannel, "CRS_DV" , false );
-	// AddChannel( mTx0Channel, "TX[" , false );
-	// AddChannel( mTx1Channel, "TX[" , false );
-	// AddChannel( mTxEnChannel, "TX_EN" , false );
+	AddChannel( mD0Channel, "D[" , false );
+	AddChannel( mD1Channel, "D[" , false );
+	AddChannel( mEnChannel, "CRS_DV" , false );
 
 	UpdateInterfacesFromSettings();
 }
@@ -135,12 +102,9 @@ const char* RMIIAnalyzerSettings::SaveSettings()
 	SimpleArchive text_archive;
 
 	text_archive << mRefClkChannel;
-	text_archive << mRx0Channel;
-	text_archive << mRx1Channel;
-	text_archive << mCrsDvChannel;
-	// text_archive << mTx0Channel;
-	// text_archive << mTx1Channel;
-	// text_archive << mTxEnChannel;
+	text_archive << mD0Channel;
+	text_archive << mD1Channel;
+	text_archive << mEnChannel;
 	text_archive << mPreamble;
 
 	return SetReturnString( text_archive.GetString() );

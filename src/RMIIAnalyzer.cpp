@@ -41,20 +41,16 @@ void RMIIAnalyzer::SetupResults()
 {
 	mResults.reset( new RMIIAnalyzerResults( this, mSettings.get() ) );
 	SetAnalyzerResults( mResults.get() );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mRx0Channel );
-	mResults->AddChannelBubblesWillAppearOn( mSettings->mRx1Channel );
+	mResults->AddChannelBubblesWillAppearOn( mSettings->mD0Channel );
+	mResults->AddChannelBubblesWillAppearOn( mSettings->mD1Channel );
 }
 
 void RMIIAnalyzer::WorkerThread()
 {
 	mRefClk = GetAnalyzerChannelData( mSettings->mRefClkChannel );
-	mRx0 = GetAnalyzerChannelData( mSettings->mRx0Channel );
-	mRx1 = GetAnalyzerChannelData( mSettings->mRx1Channel );
-	mCrsDv = GetAnalyzerChannelData( mSettings->mCrsDvChannel );
-	// mTx0 = GetAnalyzerChannelData( mSettings->mTx0Channel );
-	// mTx1 = GetAnalyzerChannelData( mSettings->mTx1Channel );
-	// mTxEn = GetAnalyzerChannelData( mSettings->mTxEnChannel );
-
+	mD0 = GetAnalyzerChannelData( mSettings->mD0Channel );
+	mD1 = GetAnalyzerChannelData( mSettings->mD1Channel );
+	mEn = GetAnalyzerChannelData( mSettings->mEnChannel );
 
 	// FSM state
 	bool in_frame = false;
@@ -63,32 +59,17 @@ void RMIIAnalyzer::WorkerThread()
 	BitState crs_dv;
 	U8 preamble = mSettings->mPreamble;
 
-	// mResults->AddTabularText("Hello World");
-
 	for( ; ; )
 	{
 		U8 data = 0;
 		U8 mask = 1 << 7;
-		
-		RisingEdge(mCrsDv);
-		U64 sample_number = mCrsDv->GetSampleNumber();
+
+		// Step 1: detect start of frame
+		RisingEdge(mEn);
+		U64 sample_number = mEn->GetSampleNumber();
 		mRefClk->AdvanceToAbsPosition(sample_number);
 		mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRefClkChannel );
-		// step 1: detect start of carrier detect
-		// crs_dv = mCrsDv->GetBitState();
-		// while( true ) {
-		// 	RisingEdge( mRefClk );
-		// 	U64 sample_number = mRefClk->GetSampleNumber();
-		// 	mCrsDv->AdvanceToAbsPosition(sample_number);
-		// 	mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRefClkChannel );
-		// 	if( (crs_dv == BIT_LOW) && (mCrsDv->GetBitState() == BIT_HIGH) ) { //rising edge
-		// 		break;
-		// 	}
-		// 	if( !mRefClk->DoMoreTransitionsExistInCurrentData() ) {
-		// 		return;
-		// 	}
-		// 	crs_dv = mCrsDv->GetBitState();
-		// }
+
 		in_frame = true;
 		rx = 0;
 
@@ -97,23 +78,23 @@ void RMIIAnalyzer::WorkerThread()
 		{
 			RisingEdge( mRefClk );
 			U64 sample_number = mRefClk->GetSampleNumber();
-			mCrsDv->AdvanceToAbsPosition(sample_number);
-			mRx0->AdvanceToAbsPosition(sample_number);
-			mRx1->AdvanceToAbsPosition(sample_number);
+			mEn->AdvanceToAbsPosition(sample_number);
+			mD0->AdvanceToAbsPosition(sample_number);
+			mD1->AdvanceToAbsPosition(sample_number);
 
-			if( mCrsDv->GetBitState() == BIT_LOW ) {
+			if( mEn->GetBitState() == BIT_LOW ) {
 				break;
 			}
 			else {
-				rx = mRx0->GetBitState() == BIT_HIGH ? 1 << 6 : 0;
-				rx = mRx1->GetBitState() == BIT_HIGH ? rx + (2 << 6) : rx;
+				rx = mD0->GetBitState() == BIT_HIGH ? 1 << 6 : 0;
+				rx = mD1->GetBitState() == BIT_HIGH ? rx + (2 << 6) : rx;
 				if( rx != 0 ) {
 					starting_sample = mRefClk->GetSampleNumber();
 					in_frame = true;
 					// Add Markers
-					mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mCrsDvChannel );
-					mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRx0Channel );
-					mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRx1Channel );
+					mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mEnChannel );
+					mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mD0Channel );
+					mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mD1Channel );
 					break;
 				}
 			}
@@ -124,20 +105,20 @@ void RMIIAnalyzer::WorkerThread()
 		{
 			RisingEdge( mRefClk );
 			U64 sample_number = mRefClk->GetSampleNumber();
-			mCrsDv->AdvanceToAbsPosition(sample_number);
-			mRx0->AdvanceToAbsPosition(sample_number);
-			mRx1->AdvanceToAbsPosition(sample_number);
+			mEn->AdvanceToAbsPosition(sample_number);
+			mD0->AdvanceToAbsPosition(sample_number);
+			mD1->AdvanceToAbsPosition(sample_number);
 			// Add Markers
-			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mCrsDvChannel );
-			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRx0Channel );
-			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRx1Channel );
-			if( mCrsDv->GetBitState() == BIT_LOW ) {
+			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mEnChannel );
+			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mD0Channel );
+			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mD1Channel );
+			if( mEn->GetBitState() == BIT_LOW ) {
 				in_frame = false;
 				break;
 			}
 			rx = rx >> 2;
-			rx = mRx0->GetBitState() == BIT_HIGH ? rx + (1 << 6) : rx;
-			rx = mRx1->GetBitState() == BIT_HIGH ? rx + (2 << 6) : rx;
+			rx = mD0->GetBitState() == BIT_HIGH ? rx + (1 << 6) : rx;
+			rx = mD1->GetBitState() == BIT_HIGH ? rx + (2 << 6) : rx;
 			if( rx == preamble ) {
 				// add preamble end mark
 				AddFrame(FRAME_TYPE_PREAMBLE, rx, starting_sample, mRefClk->GetSampleNumber());
@@ -153,14 +134,14 @@ void RMIIAnalyzer::WorkerThread()
 			// we have to be a bit smart to correctly detect the end of frame with RMII 1.2
 			RisingEdge( mRefClk );
 			U64 sample_number = mRefClk->GetSampleNumber();
-			mCrsDv->AdvanceToAbsPosition(sample_number);
-			mRx0->AdvanceToAbsPosition(sample_number);
-			mRx1->AdvanceToAbsPosition(sample_number);
+			mEn->AdvanceToAbsPosition(sample_number);
+			mD0->AdvanceToAbsPosition(sample_number);
+			mD1->AdvanceToAbsPosition(sample_number);
 			// Add Markers
-			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mCrsDvChannel );
-			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRx0Channel );
-			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mRx1Channel );
-			if( mCrsDv->GetBitState() == BIT_LOW ) {
+			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mEnChannel );
+			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mD0Channel );
+			mResults->AddMarker( sample_number, AnalyzerResults::Dot, mSettings->mD1Channel );
+			if( mEn->GetBitState() == BIT_LOW ) {
 				crs_dv_zero_cnt++;
 				if( crs_dv_zero_cnt == 2 ) {
 					in_frame = false;
@@ -173,8 +154,8 @@ void RMIIAnalyzer::WorkerThread()
 
 			// receiving bytes, 2 bits at a time
 			rx = rx >> 2;
-			rx = mRx0->GetBitState() == BIT_HIGH ? rx + (1 << 6) : rx;
-			rx = mRx1->GetBitState() == BIT_HIGH ? rx + (2 << 6) : rx;
+			rx = mD0->GetBitState() == BIT_HIGH ? rx + (1 << 6) : rx;
+			rx = mD1->GetBitState() == BIT_HIGH ? rx + (2 << 6) : rx;
 
 			bitcnt += 2;
 			if( bitcnt == 8 ) {
@@ -185,7 +166,7 @@ void RMIIAnalyzer::WorkerThread()
 			}
 		}
 
-		if( !mCrsDv->DoMoreTransitionsExistInCurrentData() ) {
+		if( !mEn->DoMoreTransitionsExistInCurrentData() ) {
 			break;
 		}
 	}

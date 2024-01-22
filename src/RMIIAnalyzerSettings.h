@@ -16,22 +16,16 @@ public:
 	virtual const char* SaveSettings();
 
 	Channel mRefClkChannel;
-	Channel mRx0Channel;
-	Channel mRx1Channel;
-	Channel mCrsDvChannel;
-	// Channel mTx0Channel;
-	// Channel mTx1Channel;
-	// Channel mTxEnChannel;
+	Channel mD0Channel;
+	Channel mD1Channel;
+	Channel mEnChannel;
 	U32 mPreamble;
 
 protected:
 	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mRefClkChannelInterface;
-	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mRx0ChannelInterface;
-	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mRx1ChannelInterface;
-	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mCrsDvChannelInterface;
-	// std::auto_ptr< AnalyzerSettingInterfaceChannel >	mTx0ChannelInterface;
-	// std::auto_ptr< AnalyzerSettingInterfaceChannel >	mTx1ChannelInterface;
-	// std::auto_ptr< AnalyzerSettingInterfaceChannel >	mTxEnChannelInterface;
+	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mD0ChannelInterface;
+	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mD1ChannelInterface;
+	std::auto_ptr< AnalyzerSettingInterfaceChannel >	mEnChannelInterface;
 	std::auto_ptr< AnalyzerSettingInterfaceInteger >	mPreambleInterface;
 };
 

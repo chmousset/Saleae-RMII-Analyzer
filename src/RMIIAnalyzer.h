@@ -29,12 +29,9 @@ protected: //vars
 	std::auto_ptr< RMIIAnalyzerSettings > mSettings;
 	std::auto_ptr< RMIIAnalyzerResults > mResults;
 	AnalyzerChannelData* mRefClk;
-	AnalyzerChannelData* mRx0;
-	AnalyzerChannelData* mRx1;
-	AnalyzerChannelData* mCrsDv;
-	AnalyzerChannelData* mTx0;
-	AnalyzerChannelData* mTx1;
-	AnalyzerChannelData* mTxEn;
+	AnalyzerChannelData* mD0;
+	AnalyzerChannelData* mD1;
+	AnalyzerChannelData* mEn;
 	RMIISimulationDataGenerator mSimulationDataGenerator;
 	bool mSimulationInitilized;
 
