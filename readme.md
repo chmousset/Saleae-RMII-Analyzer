@@ -1,7 +1,9 @@
-# Reduced Media-Indepedent Interface (RGMII) Analyzer
+# Reduced Media-Indepedent Interface (RMII) Analyzer
 
 This is a Saleae Logic Analyzer plugin for decoding Reduced Media-Independent Interface (RGMII) signals. It does no Ethernet protocol decoding, but it works on a Byte-level so an Ethernet, TCP/IP or other kind of higer-level kind of interface can be decoded by a high-level analyser, indepedently of the protocol decoder.
 TX and RX paths must be analyzed seperately (create two instances of the analyzer).
+
+NOTE: This is a work in progress; expect potential bugs
 
 ## Signals
 - REF_CLK: 50MHz reference clock. All signals are sampled on REF_CLK rising edge.
